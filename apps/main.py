@@ -1,9 +1,5 @@
-import os
 from contextlib import asynccontextmanager
-from pathlib import Path
 
-import google.generativeai as genai
-from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,20 +10,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from adapters.db_health_adapter import DbHealthAdapter
 from database import dispose_engine, get_db
 from doro.app.doro_director import DoroDirector
+from matrix.app.keymaker import get_keymaker
 from titanic.app.james_controller import JamesController
 
-# `backend/.env` (이 파일 기준 상위 디렉터리)
-load_dotenv(Path(__file__).resolve().parent.parent / ".env")
-
-GEMINI_API_KEY = (os.getenv("GEMINI_API_KEY") or "").strip()
-GEMINI_MODEL = "gemini-1.5-flash"
-
-_gemini_model: genai.GenerativeModel | None
-if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
-    _gemini_model = genai.GenerativeModel(GEMINI_MODEL)
-else:
-    _gemini_model = None
+keymaker = get_keymaker()
 
 
 class ChatRequest(BaseModel):
@@ -69,14 +55,15 @@ def chat(req: ChatRequest) -> ChatResponse:
     """
     JSON 본문 `{"message": "..."}` 를 받아 Gemini 답변 문자열을 반환합니다.
     """
-    if _gemini_model is None:
+    if not keymaker.is_gemini_ready():
         raise HTTPException(
             status_code=503,
             detail="GEMINI_API_KEY가 설정되지 않았습니다. backend/.env 에 키를 넣어 주세요.",
         )
 
+    model = keymaker.get_gemini_model()
     try:
-        response = _gemini_model.generate_content(req.message)
+        response = model.generate_content(req.message)
     except Exception as e:
         raise HTTPException(
             status_code=502,
