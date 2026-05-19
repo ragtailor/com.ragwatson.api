@@ -15,6 +15,8 @@ from matrix.app.keymaker import get_keymaker
 from secom.app.controllers.user_controller import router as secom_router
 from secom.app.models import user_model as _secom_user_model  # noqa: F401 — ORM 메타데이터 등록
 from titanic.app.james_controller import JamesController
+from secom.app.schemas.user_schema import UserSchema
+from secom.app.controllers.user_controller import UserController
 
 keymaker = get_keymaker()
 
@@ -173,12 +175,26 @@ def read_doro_data():
 @app.post("/signup", response_model=SignupResponse)
 def signup(req: SignupRequest) -> SignupResponse:
     logger.info(
-        "회원가입 요청 수신 — id=%s, password=%s, nickname=%s, email=%s",
+        "회원가입 요청 수신 — userId=%s, password=%s, nickname=%s, email=%s",
         req.userId,
         req.password,
         req.nickname,
         req.email,
     )
+    #  프론트엔드에서 가져온 데이터를 스키마에 담아서 DB 로 보내는 코드 
+    user_schema = UserSchema(
+        userId=req.userId,
+        password=req.password,
+        nickname=req.nickname,
+        email=req.email,
+        role="user",
+    )
+
+    user_controller = UserController()
+    user_controller.save_user(user_schema)
+
+
+
     return SignupResponse(
         message="회원가입 요청이 접수되었습니다.",
         id=req.id,

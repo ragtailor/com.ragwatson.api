@@ -1,6 +1,21 @@
+import logging
+
+from secom.app.repositories import UserRepository
+from secom.app.schemas.user_schema import UserSchema
+
+logger = logging.getLogger(__name__)
+
+
 class UserService:
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    
+    def save_user(self, user_schema: UserSchema) -> None:
+        logger.info(
+            "[UserService] save_user 레이어 진입 — %s",
+            user_schema.model_dump(),
+        )
+        user_repository = UserRepository()
+        user_repository.save_user(user_schema)
+        logger.info("[UserService] save_user 레이어 완료 — userId=%s", user_schema.userId)
