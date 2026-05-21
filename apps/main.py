@@ -12,9 +12,10 @@ from adapters.db_health_adapter import DbHealthAdapter
 from database import dispose_engine, get_db
 from doro.app.doro_director import DoroDirector
 from matrix.app.keymaker import get_keymaker
-from secom.app.controllers.user_controller import router as secom_router
+
 from secom.app.models import user_model as _secom_user_model  # noqa: F401 — ORM 메타데이터 등록
 from titanic.app.james_controller import JamesController
+from titanic.app.schemas.caledon_validation import CaledonValidation
 from secom.app.schemas.user_schema import UserSchema
 from secom.app.controllers.user_controller import UserController
 
@@ -76,7 +77,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(secom_router)
+
 
 
 @app.get("/")
@@ -163,6 +164,27 @@ def read_titanic_model():
     controller = JamesController()
     model_name = controller.get_model_name_and_accuracy()
     return JSONResponse(content=jsonable_encoder(model_name))
+
+
+@app.post("/titanic/predict")
+def predict_titanic_survival(req: CaledonValidation):
+    controller = JamesController()
+    result = controller.predict_survival(req)
+    return JSONResponse(content=jsonable_encoder(result))
+
+
+@app.get("/titanic/jack")
+def analyze_jack_survival():
+    controller = JamesController()
+    result = controller.analyze_jack()
+    return JSONResponse(content=jsonable_encoder(result))
+
+
+@app.get("/titanic/rose")
+def analyze_rose_survival():
+    controller = JamesController()
+    result = controller.analyze_rose()
+    return JSONResponse(content=jsonable_encoder(result))
 
 
 @app.get("/doro/data")
