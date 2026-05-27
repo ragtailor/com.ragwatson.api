@@ -5,7 +5,6 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from adapters.db_health_adapter import DbHealthAdapter
@@ -19,6 +18,10 @@ from titanic.app.use_cases.caledon_validation import CaledonValidation
 from titanic.adapter.inbound.api.v1.titanic_query_router import router as titanic_query_router
 from secom.app.schemas.user_schema import UserSchema
 from secom.app.controllers.user_controller import UserController
+from her.adapter.inbound.schemas.samantha_request import SamanthaRequest
+from friday13th.adapter.inbound.schemas.jason_request import SignupRequest
+from her.adapter.inbound.schemas.samantha_response import SamanthaResponse
+from friday13th.adapter.inbound.schemas.jason_response import SignupResponse
 
 keymaker = get_keymaker()
 
@@ -35,29 +38,6 @@ def _configure_logging() -> None:
 _configure_logging()
 logger = logging.getLogger(__name__)
 
-
-class ChatRequest(BaseModel):
-    """채팅 요청 본문. 사용자 메시지를 JSON으로 전달합니다."""
-
-    message: str = Field(..., min_length=1, description="사용자 메시지")
-
-
-class ChatResponse(BaseModel):
-    reply: str
-
-
-class SignupRequest(BaseModel):
-    id: str = Field(..., min_length=1, description="아이디")
-    password: str = Field(..., min_length=1, description="비밀번호")
-    nickname: str = Field(..., min_length=1, description="닉네임")
-    email: str = Field(..., min_length=1, description="이메일")
-
-
-class SignupResponse(BaseModel):
-    message: str
-    id: str
-    nickname: str
-    email: str
 
 
 @asynccontextmanager
@@ -88,8 +68,8 @@ def read_root():
     return {"message": "FAST API 메인 페이지 ", "docs": "/docs"}
 
 
-@app.post("/chat", response_model=ChatResponse)
-def chat(req: ChatRequest) -> ChatResponse:
+@app.post("/chat", response_model=SamanthaResponse)
+def chat(req: SamanthaRequest) -> SamanthaResponse:
     """
     JSON 본문 `{"message": "..."}` 를 받아 Gemini 답변 문자열을 반환합니다.
     """
@@ -130,7 +110,7 @@ def chat(req: ChatRequest) -> ChatResponse:
             ),
         )
 
-    return ChatResponse(reply=text)
+    return SamanthaResponse(reply=text)
 
 
 @app.get("/db-check")
