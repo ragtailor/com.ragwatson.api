@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from titanic.app.ports.input.james_use_case import JamesUseCase
+from titanic.app.ports.input.james_director_use_case import JamesDirectorUseCase
 from titanic.app.ports.output.james_repository import JamesRepository
 
 
-class JamesCommand(JamesUseCase):
+class JamesDirectorInteractor(JamesDirectorUseCase):
     def __init__(self, repository: JamesRepository) -> None:
         self._repository = repository
 

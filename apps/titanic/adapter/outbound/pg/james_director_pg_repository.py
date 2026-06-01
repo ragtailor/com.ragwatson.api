@@ -19,7 +19,7 @@ _ALLOWED_FIELDS = {
 }
 
 
-class JamesPgRepository(JamesRepository):
+class JamesDirectorPgRepository(JamesRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 

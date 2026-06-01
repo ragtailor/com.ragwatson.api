@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class CaledonUseCase(ABC):
+class JackSketchRepository(ABC):
 
     @abstractmethod
-    async def validate_passenger(self, passenger_data: dict[str, Any]) -> dict[str, Any]:
+    async def get_training_data(self) -> list[dict[str, Any]]:
         ...

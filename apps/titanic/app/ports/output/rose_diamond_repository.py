@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class CaledonUseCase(ABC):
+class RoseDiamondRepository(ABC):
 
     @abstractmethod
-    async def validate_passenger(self, passenger_data: dict[str, Any]) -> dict[str, Any]:
+    async def get_all_records(self) -> list[dict[str, Any]]:
         ...

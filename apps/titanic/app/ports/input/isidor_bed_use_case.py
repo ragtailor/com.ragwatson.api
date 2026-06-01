@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 
-class CaledonUseCase(ABC):
+class IsidorBedUseCase(ABC):
 
     @abstractmethod
-    async def validate_passenger(self, passenger_data: dict[str, Any]) -> dict[str, Any]:
+    async def get_couple_survival(self) -> dict[str, Any]:
         ...
